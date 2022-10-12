@@ -39,23 +39,21 @@ public class TextReader implements ImageAnalysis.Analyzer {
     }
 
     private void readTextFromImage(InputImage image, ImageProxy imageProxy) {
-
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 .process(image)
                 .addOnSuccessListener(visionText -> {
                             processTextFromImage(visionText, imageProxy);
                             imageProxy.close();
                         }
-                ).addOnFailureListener(error ->{
+                ).addOnFailureListener(error -> {
                     error.printStackTrace();
                     imageProxy.close();
                 });
     }
 
     private void processTextFromImage(Text visionText, ImageProxy imageProxy) {
-        for (Text.TextBlock textBlock : visionText.getTextBlocks()){
-            listener.onTextFound(textBlock);
-        }
+        if (visionText.getTextBlocks().size() > 0)
+            listener.onTextFound(visionText, imageProxy);
 
     }
 

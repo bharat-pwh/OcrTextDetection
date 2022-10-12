@@ -10,6 +10,7 @@
 
 
     <androidx.camera.view.PreviewView
+        android:padding="4dp"
         android:id="@+id/cameraPreviewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

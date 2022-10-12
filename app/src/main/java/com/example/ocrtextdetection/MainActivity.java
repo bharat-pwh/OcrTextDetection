@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Size;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,17 +27,16 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private Executor cameraExecutor;
     private ImageAnalysis imageAnalyser;
     private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         handler = new Handler();
-
         imageAnalyser = new ImageAnalysis.Builder()
 //                .setTargetResolution(new Size(binding.cameraPreviewView.getWidth(),
 //                        binding.cameraPreviewView.getHeight()))
@@ -45,11 +44,14 @@ public class MainActivity extends AppCompatActivity {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
-        cameraExecutor = Executors.newSingleThreadExecutor();
+        Executor cameraExecutor = Executors.newSingleThreadExecutor();
         imageAnalyser.setAnalyzer(cameraExecutor, new TextReader(this,
-                textBlock -> {
-                    binding.paintView.setValues(textBlock);
-                    binding.paintView.destroyDrawingCache();
+                (text,imageProxy) -> {
+                    handler.removeCallbacksAndMessages(null);
+                    binding.paintView.setValues(text,imageProxy);
+                    handler.postDelayed(() -> {
+                        binding.paintView.setValues(null,null);
+                    }, 1000);
                 }
         ));
 
